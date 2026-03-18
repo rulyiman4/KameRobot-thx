@@ -1,18 +1,15 @@
 name: Android CI
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  workflow_dispatch: # MANTRA INI YANG MEMUNCULKAN TOMBOL RUN WORKFLOW!
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+    
     - name: set up JDK 11
       uses: actions/setup-java@v4
       with:
@@ -20,7 +17,15 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+    - name: Cari Folder Android dan Masak APK
+      run: |
+        FOLDER=$(dirname $(find . -name "gradlew" | head -n 1))
+        cd "$FOLDER"
+        chmod +x gradlew
+        ./gradlew assembleDebug
+
+    - name: Hidangkan APK untuk di-download
+      uses: actions/upload-artifact@v4
+      with:
+        name: Aplikasi-KameRobot
+        path: '**/*.apk'
